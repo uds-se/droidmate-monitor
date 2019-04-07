@@ -38,87 +38,98 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardCopyOption
 
-class MonitorProject constructor(private val methods: List<ApiMethodSignature>,
-								 private val executor: ISysCmdExecutor = SysCmdExecutor()
-): Closeable {
-	companion object {
-		private val log by lazy { LoggerFactory.getLogger(SysCmdExecutor::class.java) }
+class MonitorProject constructor(
+    private val methods: List<ApiMethodSignature>,
+    private val executor: ISysCmdExecutor = SysCmdExecutor()
+) : Closeable {
+    companion object {
+        private val log by lazy { LoggerFactory.getLogger(SysCmdExecutor::class.java) }
 
-		@JvmStatic
-		private val monitorApkFileName = "monitor.apk"
+        @JvmStatic
+        private val monitorApkFileName = "monitor.apk"
 
-		@JvmStatic
-		private val unpackedMonitorRepository by lazy {
-			val tempDir = Files.createTempDirectory("monitorToCompile")
-			Resource("monitorApk").extractTo(tempDir, true).toAbsolutePath()
-		}
+        @JvmStatic
+        private val unpackedMonitorRepository by lazy {
+            val tempDir = Files.createTempDirectory("monitorToCompile")
+            Resource("monitorApk").extractTo(tempDir, true).toAbsolutePath()
+        }
 
-		@JvmStatic
-		private val monitorFile by lazy { unpackedMonitorRepository
-			.resolve("src")
-			.resolve("main")
-			.resolve("java")
-			.resolve("org")
-			.resolve("droidmate")
-			.resolve("monitor")
-			.resolve("Monitor.java") }
+        @JvmStatic
+        private val monitorFile by lazy {
+            unpackedMonitorRepository
+                .resolve("src")
+                .resolve("main")
+                .resolve("java")
+                .resolve("org")
+                .resolve("droidmate")
+                .resolve("monitor")
+                .resolve("Monitor.java")
+        }
 
-		@JvmStatic
-		private val compiledApk by lazy { unpackedMonitorRepository
-			.resolve("build")
-			.resolve("outputs")
-			.resolve("apk")
-			.resolve("release")
-			.resolve("monitorApk-release-unsigned.apk") }
-	}
+        @JvmStatic
+        private val compiledApk by lazy {
+            unpackedMonitorRepository
+                .resolve("build")
+                .resolve("outputs")
+                .resolve("apk")
+                .resolve("release")
+                .resolve("monitorApk-release-unsigned.apk")
+        }
+    }
 
-	override fun close() {
-		try {
-			unpackedMonitorRepository.deleteDirectoryRecursively()
-			log.debug("Temporary monitor compilation directories cleaned up")
-		} catch (e: Exception) {
-			log.error("Unable to clean up temporary monitor apk directory: ${e.message}", e)
-		}
-	}
+    override fun close() {
+        try {
+            unpackedMonitorRepository.deleteDirectoryRecursively()
+            log.debug("Temporary monitor compilation directories cleaned up")
+        } catch (e: Exception) {
+            log.error("Unable to clean up temporary monitor apk directory: ${e.message}", e)
+        }
+    }
 
-	private fun injectRedirectionCode() {
-		log.debug("Injecting API redirection code into monitor class")
-		val methodCode = methods.joinToString(System.lineSeparator()) { it.toRedirectCode() }
+    private fun injectRedirectionCode() {
+        log.debug("Injecting API redirection code into monitor class")
+        val methodCode = methods.joinToString(System.lineSeparator()) { it.toRedirectCode() }
 
-		monitorFile.replaceText("GENERATED_CODE_INJECTION_POINT:METHOD_REDIR_TARGETS", methodCode)
-	}
+        monitorFile.replaceText("GENERATED_CODE_INJECTION_POINT:METHOD_REDIR_TARGETS", methodCode)
+    }
 
-	private fun injectFilePaths() {
-		monitorFile.replaceText("#POLICIES_FILE_PATH",
-			EnvironmentConstants.AVD_dir_for_temp_files + EnvironmentConstants.api_policies_file_name)
-		monitorFile.replaceText("#PORT_FILE_PATH",
-			EnvironmentConstants.AVD_dir_for_temp_files + EnvironmentConstants.monitor_port_file_name)
-	}
+    private fun injectFilePaths() {
+        monitorFile.replaceText(
+            "#POLICIES_FILE_PATH",
+            EnvironmentConstants.AVD_dir_for_temp_files + EnvironmentConstants.api_policies_file_name
+        )
+        monitorFile.replaceText(
+            "#PORT_FILE_PATH",
+            EnvironmentConstants.AVD_dir_for_temp_files + EnvironmentConstants.monitor_port_file_name
+        )
+    }
 
-	private fun copyApkTo(dstDir: Path): Path {
-		if (!Files.exists(compiledApk)) {
-			throw IllegalStateException("Compiled Monitor APK not found under $compiledApk")
-		}
+    private fun copyApkTo(dstDir: Path): Path {
+        if (!Files.exists(compiledApk)) {
+            throw IllegalStateException("Compiled Monitor APK not found under $compiledApk")
+        }
 
-		Files.createDirectories(dstDir)
-		val dstFile = dstDir.resolve(monitorApkFileName)
+        Files.createDirectories(dstDir)
+        val dstFile = dstDir.resolve(monitorApkFileName)
 
-		Files.copy(compiledApk, dstFile, StandardCopyOption.REPLACE_EXISTING)
+        Files.copy(compiledApk, dstFile, StandardCopyOption.REPLACE_EXISTING)
 
-		return dstFile
-	}
+        return dstFile
+    }
 
-	private fun buildApk() {
-		executor.executeWithoutTimeout("Building monitor apk", "$unpackedMonitorRepository/gradlew",
-			"clean", "build", "-p", "$unpackedMonitorRepository")
-	}
+    private fun buildApk() {
+        executor.executeWithoutTimeout(
+            "Building monitor apk", "$unpackedMonitorRepository/gradlew",
+            "clean", "build", "-p", "$unpackedMonitorRepository"
+        )
+    }
 
-	fun instrument(dstDir: Path): Path {
-		injectRedirectionCode()
-		injectFilePaths()
+    fun instrument(dstDir: Path): Path {
+        injectRedirectionCode()
+        injectFilePaths()
 
-		buildApk()
+        buildApk()
 
-		return copyApkTo(dstDir)
-	}
+        return copyApkTo(dstDir)
+    }
 }

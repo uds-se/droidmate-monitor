@@ -1,14 +1,15 @@
 package org.droidmate.monitor;
 
+import android.util.Log;
 import org.droidmate.misc.MonitorConstants;
 
-import android.util.Log;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.ServerSocket;
 import java.net.SocketException;
 
 abstract class TcpServerBase<ServerInputT extends Serializable, ServerOutputT extends Serializable> {
+	private final Object mLock = new Object();
 	int port;
 	ServerSocket serverSocket = null;
 	SocketException serverSocketException = null;
@@ -16,8 +17,6 @@ abstract class TcpServerBase<ServerInputT extends Serializable, ServerOutputT ex
 	TcpServerBase() {
 		super();
 	}
-
-	private final Object mLock = new Object();
 
 	protected abstract ServerOutputT OnServerRequest(ServerInputT input);
 

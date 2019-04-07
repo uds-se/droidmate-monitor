@@ -1,8 +1,8 @@
 package org.droidmate.monitor;
 
+import android.util.Log;
 import org.droidmate.misc.MonitorConstants;
 
-import android.util.Log;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -80,7 +80,7 @@ class MonitorServerRunnable<ServerInputT extends Serializable, ServerOutputT ext
 				try {
 					@SuppressWarnings("unchecked")
 					// Without this var here, there is no place to put the "unchecked" suppression warning.
-					ServerInputT localVarForSuppressionAnnotation = (ServerInputT) SerializationHelper.readObjectFromStream(input);
+							ServerInputT localVarForSuppressionAnnotation = (ServerInputT) SerializationHelper.readObjectFromStream(input);
 					serverInput = localVarForSuppressionAnnotation;
 
 				} catch (Exception e) {

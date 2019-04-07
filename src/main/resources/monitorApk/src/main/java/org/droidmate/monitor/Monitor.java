@@ -33,15 +33,17 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
+import de.larma.arthook.ArtHook;
 import org.droidmate.misc.MonitorConstants;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileReader;
 import java.lang.reflect.Array;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.*;
-
-import de.larma.arthook.*;
 
 /**
  * <p>
@@ -71,8 +73,7 @@ import de.larma.arthook.*;
  */
 @SuppressLint("NewApi")
 @SuppressWarnings("Convert2Diamond")
-public class Monitor
-{
+public class Monitor {
 	/**
 	 * <p> Contains API logs gathered by monitor, to be transferred to the host machine when appropriate command is read by the
 	 * TCP server.
@@ -108,8 +109,7 @@ public class Monitor
 
 	//endregion
 
-	public Monitor(boolean skip)
-	{
+	public Monitor(boolean skip) {
 		if (skip)
 			return;
 
@@ -289,8 +289,8 @@ public class Monitor
 
 	private static boolean skipLine(String line) {
 		return (line.trim().length() == 0) ||
-						!line.contains("\t") ||
-						line.startsWith("#");
+				!line.contains("\t") ||
+				line.startsWith("#");
 	}
 
 	private static void processLine(String line) {

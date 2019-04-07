@@ -162,79 +162,79 @@ private val ind4 = "    "
 )*/
 
 fun ApiMethodSignature.toRedirectCode(): String {
-	return if (this.objectClass.startsWith("android.test."))
-		""
-	else {
-		val out = StringBuilder()
+    return if (this.objectClass.startsWith("android.test."))
+        ""
+    else {
+        val out = StringBuilder()
 
-		out.append(String.format("@Hook(\"%s\")", this.hook) + nl)
-		out.append(String.format("public static %s %s", this.returnClass, this.name) + nl)
-		out.append("{$nl")
+        out.append(String.format("@Hook(\"%s\")", this.hook) + nl)
+        out.append(String.format("public static %s %s", this.returnClass, this.name) + nl)
+        out.append("{$nl")
 
-		/**
-		 * MonitorJavaTemplate and MonitorTcpServer have calls to Log.i() and Log.v() in them, whose tag starts with
-		 * MonitorConstants.tag_prefix. This conditional ensures
-		 * such calls are not being monitored,
-		 * as they are DroidMate's monitor internal code, not the behavior of the app under exploration.
-		 */
-		if (this.objectClass == "android.util.Log" && (this.methodName in arrayListOf(
-				"v",
-				"d",
-				"i",
-				"w",
-				"e"
-			)) && paramClasses.size in arrayListOf(2, 3)
-		) {
-			out.append(ind4 + ind4 + "if (p0.startsWith(\"${MonitorConstants.tag_prefix}\"))" + nl)
-			when {
-				paramClasses.size == 2 -> out.append("$ind4$ind4  return OriginalMethod.by(new \$() {}).invokeStatic(p0, p1);$nl")
-				paramClasses.size == 3 -> out.append("$ind4$ind4  return OriginalMethod.by(new \$() {}).invokeStatic(p0, p1, p2);$nl")
-				else -> assert(false) { "paramClasses.size() is not in [2,3]. It is ${paramClasses.size}" }
-			}
-		}
+        /**
+         * MonitorJavaTemplate and MonitorTcpServer have calls to Log.i() and Log.v() in them, whose tag starts with
+         * MonitorConstants.tag_prefix. This conditional ensures
+         * such calls are not being monitored,
+         * as they are DroidMate's monitor internal code, not the behavior of the app under exploration.
+         */
+        if (this.objectClass == "android.util.Log" && (this.methodName in arrayListOf(
+                "v",
+                "d",
+                "i",
+                "w",
+                "e"
+            )) && paramClasses.size in arrayListOf(2, 3)
+        ) {
+            out.append(ind4 + ind4 + "if (p0.startsWith(\"${MonitorConstants.tag_prefix}\"))" + nl)
+            when {
+                paramClasses.size == 2 -> out.append("$ind4$ind4  return OriginalMethod.by(new \$() {}).invokeStatic(p0, p1);$nl")
+                paramClasses.size == 3 -> out.append("$ind4$ind4  return OriginalMethod.by(new \$() {}).invokeStatic(p0, p1, p2);$nl")
+                else -> assert(false) { "paramClasses.size() is not in [2,3]. It is ${paramClasses.size}" }
+            }
+        }
 
-		out.append(ind4 + "String stackTrace = getStackTrace();" + nl)
-		out.append(ind4 + "long threadId = getThreadId();" + nl)
-		out.append(ind4 + String.format("String logSignature = %s;", this.logId) + nl)
-		out.append(
-			ind4 + String.format(
-				"Log.%s(\"%s\", logSignature);",
-				MonitorConstants.loglevel,
-				MonitorConstants.tag_api
-			) + nl
-		)
-		out.append(ind4 + "addCurrentLogs(logSignature);" + nl)
+        out.append(ind4 + "String stackTrace = getStackTrace();" + nl)
+        out.append(ind4 + "long threadId = getThreadId();" + nl)
+        out.append(ind4 + String.format("String logSignature = %s;", this.logId) + nl)
+        out.append(
+            ind4 + String.format(
+                "Log.%s(\"%s\", logSignature);",
+                MonitorConstants.loglevel,
+                MonitorConstants.tag_api
+            ) + nl
+        )
+        out.append(ind4 + "addCurrentLogs(logSignature);" + nl)
 
-		out.append(ind4 + "List<Uri> uriList = new ArrayList<>();" + nl)
+        out.append(ind4 + "List<Uri> uriList = new ArrayList<>();" + nl)
 
-		(0 until this.paramClasses.size).forEach { x ->
-			if (this.paramClasses[x] == "android.net.Uri")
-				out.append(ind4 + "uriList.add(p$x);" + nl)
-		}
-		out.append(ind4 + "ApiPolicy policy = getPolicy(\"${this.getShortSignature()}\", uriList);" + nl)
-		// Currently, when denying, the method is not being called
-		out.append(ind4 + "switch (policy){ " + nl)
-		out.append(ind4 + ind4 + "case Allow: " + nl)
-		// has an embedded return, no need for break
-		out.append(ind4 + ind4 + ind4 + this.invokeCode + nl)
-		out.append(ind4 + ind4 + "case Mock: " + nl)
-		out.append(ind4 + ind4 + ind4 + String.format("return %s;", this.defaultValue) + nl)
-		out.append(ind4 + ind4 + "case Deny: " + nl)
-		out.append(ind4 + ind4 + ind4 + "${this.exceptionType} e = new ${this.exceptionType}(\"API ${this.objectClass}->${this.methodName} was blocked by DroidMate\");" + nl)
-		out.append(
-			ind4 + ind4 + ind4 + String.format(
-				"Log.e(\"%s\", e.getMessage());",
-				MonitorConstants.tag_api
-			) + nl
-		)
-		out.append(ind4 + ind4 + ind4 + "throw e;" + nl)
-		out.append(ind4 + ind4 + "default:" + nl)
-		out.append(ind4 + ind4 + ind4 + "throw new RuntimeException(\"Policy for api ${this.objectClass}->${this.methodName} cannot be determined.\");" + nl)
-		out.append("$ind4}$nl")
+        (0 until this.paramClasses.size).forEach { x ->
+            if (this.paramClasses[x] == "android.net.Uri")
+                out.append(ind4 + "uriList.add(p$x);" + nl)
+        }
+        out.append(ind4 + "ApiPolicy policy = getPolicy(\"${this.getShortSignature()}\", uriList);" + nl)
+        // Currently, when denying, the method is not being called
+        out.append(ind4 + "switch (policy){ " + nl)
+        out.append(ind4 + ind4 + "case Allow: " + nl)
+        // has an embedded return, no need for break
+        out.append(ind4 + ind4 + ind4 + this.invokeCode + nl)
+        out.append(ind4 + ind4 + "case Mock: " + nl)
+        out.append(ind4 + ind4 + ind4 + String.format("return %s;", this.defaultValue) + nl)
+        out.append(ind4 + ind4 + "case Deny: " + nl)
+        out.append(ind4 + ind4 + ind4 + "${this.exceptionType} e = new ${this.exceptionType}(\"API ${this.objectClass}->${this.methodName} was blocked by DroidMate\");" + nl)
+        out.append(
+            ind4 + ind4 + ind4 + String.format(
+                "Log.e(\"%s\", e.getMessage());",
+                MonitorConstants.tag_api
+            ) + nl
+        )
+        out.append(ind4 + ind4 + ind4 + "throw e;" + nl)
+        out.append(ind4 + ind4 + "default:" + nl)
+        out.append(ind4 + ind4 + ind4 + "throw new RuntimeException(\"Policy for api ${this.objectClass}->${this.methodName} cannot be determined.\");" + nl)
+        out.append("$ind4}$nl")
 
-		out.append("}$nl")
-		out.append(ind4 + nl)
+        out.append("}$nl")
+        out.append(ind4 + nl)
 
-		out.toString()
-	}
+        out.toString()
+    }
 }

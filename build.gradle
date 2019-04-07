@@ -5,6 +5,8 @@ plugins {
 group 'org.droidmate'
 version '1.0-SNAPSHOT'
 
+apply from: file("${rootProject.projectDir}/ktlint.gradle")
+
 repositories {
     mavenCentral()
     //mavenLocal()

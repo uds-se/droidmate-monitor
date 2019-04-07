@@ -1,9 +1,8 @@
 package org.droidmate.monitor;
 
 import android.content.Context;
-import org.droidmate.misc.MonitorConstants;
-
 import android.util.Log;
+import org.droidmate.misc.MonitorConstants;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -69,7 +68,6 @@ class MonitorTcpServer extends TcpServerBase<String, LinkedList<ArrayList<String
 	 * MonitorJavaTemplate itself. This would be a bug and thus it will cause an assertion failure in this method.
 	 * <p>
 	 * </p>
-	 *
 	 */
 	private void validateLogsAreNotFromMonitor() {
 		for (ArrayList<String> log : Monitor.currentLogs) {

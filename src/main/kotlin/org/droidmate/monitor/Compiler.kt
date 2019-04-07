@@ -33,52 +33,54 @@ import java.nio.file.Path
 import java.nio.file.Paths
 
 class Compiler {
-	companion object {
-		@JvmStatic
-		fun main(args: Array<String>) {
-			val apiFile = Paths.get("./input/monitored_apis.json")
-			val dstDir = Paths.get("./tmp")
-			val dstFile = compile(apiFile, dstDir)
-			println("Compiled apk moved to: $dstFile")
-		}
+    companion object {
+        @JvmStatic
+        fun main(args: Array<String>) {
+            val apiFile = Paths.get("./input/monitored_apis.json")
+            val dstDir = Paths.get("./tmp")
+            val dstFile = compile(apiFile, dstDir)
+            println("Compiled apk moved to: $dstFile")
+        }
 
-		@JvmStatic
-		private fun generateMethods(apiFile: Path): List<ApiMethodSignature> {
-			val fileData = Files.readAllLines(apiFile).joinToString(System.lineSeparator())
-			val jsonApiList = JsonParser().parse(fileData).asJsonObject
+        @JvmStatic
+        private fun generateMethods(apiFile: Path): List<ApiMethodSignature> {
+            val fileData = Files.readAllLines(apiFile).joinToString(System.lineSeparator())
+            val jsonApiList = JsonParser().parse(fileData).asJsonObject
 
-			return jsonApiList.get("apis")
-				.asJsonArray
-				.map { item ->
-					val objApi = item as JsonObject
-					val className = objApi.get("className").asString
-					val hookedMethod = objApi.get("hookedMethod").asString
-					val signature = objApi.get("signature").asString
-					val invokeAPICode = objApi.get("invokeAPICode").asString
-					val defaultReturnValue = objApi.get("defaultReturnValue").asString
-					val exceptionType = objApi.get("exceptionType").asString
-					val logID = objApi.get("logID").asString
-					val methodName = objApi.get("methodName").asString
-					val paramList = objApi.get("paramList").asJsonArray.map { it.asString }
-					val returnType = objApi.get("returnType").asString
-					val isStatic = objApi.get("isStatic").asBoolean
+            return jsonApiList.get("apis")
+                .asJsonArray
+                .map { item ->
+                    val objApi = item as JsonObject
+                    val className = objApi.get("className").asString
+                    val hookedMethod = objApi.get("hookedMethod").asString
+                    val signature = objApi.get("signature").asString
+                    val invokeAPICode = objApi.get("invokeAPICode").asString
+                    val defaultReturnValue = objApi.get("defaultReturnValue").asString
+                    val exceptionType = objApi.get("exceptionType").asString
+                    val logID = objApi.get("logID").asString
+                    val methodName = objApi.get("methodName").asString
+                    val paramList = objApi.get("paramList").asJsonArray.map { it.asString }
+                    val returnType = objApi.get("returnType").asString
+                    val isStatic = objApi.get("isStatic").asBoolean
 
-					ApiMethodSignature.fromDescriptor(className, returnType, methodName, paramList,
-						isStatic, hookedMethod, signature, logID, invokeAPICode, defaultReturnValue, exceptionType)
-				}
-		}
+                    ApiMethodSignature.fromDescriptor(
+                        className, returnType, methodName, paramList,
+                        isStatic, hookedMethod, signature, logID, invokeAPICode, defaultReturnValue, exceptionType
+                    )
+                }
+        }
 
-		@JvmStatic
-		fun compile(apiFile: Path, dstDir: Path): Path {
-			val methods = generateMethods(apiFile)
-			return compile(methods, dstDir)
-		}
+        @JvmStatic
+        fun compile(apiFile: Path, dstDir: Path): Path {
+            val methods = generateMethods(apiFile)
+            return compile(methods, dstDir)
+        }
 
-		@JvmStatic
-		fun compile(methods: List<ApiMethodSignature>, dstDir: Path): Path {
-			return MonitorProject(methods).use {
-				it.instrument(dstDir)
-			}
-		}
-	}
+        @JvmStatic
+        fun compile(methods: List<ApiMethodSignature>, dstDir: Path): Path {
+            return MonitorProject(methods).use {
+                it.instrument(dstDir)
+            }
+        }
+    }
 }
