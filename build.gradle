@@ -13,6 +13,19 @@ repositories {
     maven { url 'https://jitpack.io' }
 }
 
+task sourcesJar(type: Jar, dependsOn: "classes") {
+    classifier = 'sources'
+    from sourceSets.main.allJava
+    from sourceSets.main.allSource
+    from sourceSets.test.allSource
+}
+
+apply plugin: 'maven'
+
+artifacts {
+    archives sourcesJar
+}
+
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 
