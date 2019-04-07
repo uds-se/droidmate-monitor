@@ -89,7 +89,7 @@ dependencies {
 	//noinspection GradleDependency
 	implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.2.51" // jdk7 does not support higher kotlin version
 
-	implementation 'com.github.natanieljr:droidmate-common:-SNAPSHOT'
+	implementation 'com.github.natanieljr:droidmate-common:master-SNAPSHOT'
 
 	implementation fileTree(dir: 'libs', include: ['*.jar'])
 }
