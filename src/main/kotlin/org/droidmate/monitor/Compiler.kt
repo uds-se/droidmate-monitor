@@ -28,22 +28,47 @@ package org.droidmate.monitor
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import org.droidmate.device.apis.ApiMethodSignature
+import org.droidmate.legacy.Resource
+import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 
 class Compiler {
     companion object {
+        private val defaultApiListPath by lazy { Resource("monitored_apis.json").path }
+
         @JvmStatic
         fun main(args: Array<String>) {
-            val apiFile = Paths.get("./input/monitored_apis.json")
-            val dstDir = Paths.get("./tmp")
+            if (args.isEmpty() || args.size > 2) {
+                println("Usage instructions: The following configurations are supported:\n" +
+                        "-- <DESTINATION DIRECTORY FOR COMPILED APK>\n" +
+                        "-- <DESTINATION DIRECTORY FOR COMPILED APK> <API LIST FILE>\n" +
+                        "If not file is used, the monitor will be compiled with the default API list")
+                return
+            }
+
+            val dstDir = Paths.get(args[0])
+            val apiFile = if (args.size > 1) {
+                Paths.get(args[1])
+            } else {
+                defaultApiListPath
+            }
+
             val dstFile = compile(apiFile, dstDir)
             println("Compiled apk moved to: $dstFile")
         }
 
+        /**
+         * Converts a JSON file into a list of APIs
+         *
+         * @param apiFile File to be read
+         * @return List of API signatures
+         * @throws IOException if the API file cannot be read
+         */
         @JvmStatic
-        private fun generateMethods(apiFile: Path): List<ApiMethodSignature> {
+        @Throws(IOException::class)
+        fun generateMethods(apiFile: Path): List<ApiMethodSignature> {
             val fileData = Files.readAllLines(apiFile).joinToString(System.lineSeparator())
             val jsonApiList = JsonParser().parse(fileData).asJsonObject
 
@@ -70,12 +95,27 @@ class Compiler {
                 }
         }
 
+        /**
+         * Converts a JSON file into a list of APIs
+         *
+         * @param apiFile File to be read. If none is chosen, use default API list
+         * @param dstDir Directory where the compile APK will be stored
+         * @throws IOException if the API file cannot be read
+         */
         @JvmStatic
-        fun compile(apiFile: Path, dstDir: Path): Path {
+        @JvmOverloads
+        @Throws(IOException::class)
+        fun compile(apiFile: Path = defaultApiListPath, dstDir: Path): Path {
             val methods = generateMethods(apiFile)
             return compile(methods, dstDir)
         }
 
+        /**
+         * Converts a JSON file into a list of APIs
+         *
+         * @param dstDir Directory where the compile APK will be stored
+         * @throws IOException if the API file cannot be read
+         */
         @JvmStatic
         fun compile(methods: List<ApiMethodSignature>, dstDir: Path): Path {
             return MonitorProject(methods).use {

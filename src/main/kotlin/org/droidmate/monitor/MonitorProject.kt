@@ -86,13 +86,20 @@ class MonitorProject constructor(
         }
     }
 
+    /**
+     * Generate code for API redirection
+     */
     private fun injectRedirectionCode() {
         log.debug("Injecting API redirection code into monitor class")
         val methodCode = methods.joinToString(System.lineSeparator()) { it.toRedirectCode() }
 
-        monitorFile.replaceText("GENERATED_CODE_INJECTION_POINT:METHOD_REDIR_TARGETS", methodCode)
+        monitorFile.replaceText("GENERATED_CODE_INJECTION_POINT:METHOD_REDIR_TARGETS",
+            "${System.lineSeparator()}$methodCode")
     }
 
+    /**
+     * Generate code for Port and policies file path
+     */
     private fun injectFilePaths() {
         monitorFile.replaceText(
             "#POLICIES_FILE_PATH",
@@ -104,6 +111,12 @@ class MonitorProject constructor(
         )
     }
 
+    /**
+     * Move compiled APK from temporary directory to destination directory
+     *
+     * @param dstDir Directory to copy the compiled APK to
+     * @return Path of the compiled APK within the [dstDir]
+     */
     private fun copyApkTo(dstDir: Path): Path {
         if (!Files.exists(compiledApk)) {
             throw IllegalStateException("Compiled Monitor APK not found under $compiledApk")
@@ -117,6 +130,9 @@ class MonitorProject constructor(
         return dstFile
     }
 
+    /**
+     * Execute gradle build task on the temporary project to build the monitor
+     */
     private fun buildApk() {
         executor.executeWithoutTimeout(
             "Building monitor apk", "$unpackedMonitorRepository/gradlew",
@@ -124,6 +140,12 @@ class MonitorProject constructor(
         )
     }
 
+    /**
+     * Build the redirection APK and copy it to the (destination directory)[dstDir]
+     *
+     * @param Directory to copy the compiled APK to
+     * @return Path of the compiled APK within the [dstDir]
+     */
     fun instrument(dstDir: Path): Path {
         injectRedirectionCode()
         injectFilePaths()
