@@ -30,7 +30,7 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 
     //implementation group:'org.droidmate', name: 'common', version: "1.4-SNAPSHOT"
-    implementation 'com.github.natanieljr:droidmate-common:master-SNAPSHOT'
+    implementation 'com.github.natanieljr:droidmate-common:-SNAPSHOT'
     
     compile 'com.google.code.gson:gson:2.8.5'
 
