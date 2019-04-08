@@ -40,19 +40,19 @@ import java.nio.file.StandardCopyOption
 import kotlin.streams.toList
 
 class ApkInliner @JvmOverloads constructor(
-    private val resourceDir: Path,
+    private val stagingDir: Path,
     private val sysCmdExecutor: ISysCmdExecutor = SysCmdExecutor()
 ) {
 
     private val jarsignerWrapper by lazy {
         JarsignerWrapper(sysCmdExecutor,
             EnvironmentConstants.jarsigner.toAbsolutePath(),
-            Resource("debug.keystore").extractTo(resourceDir))
+            Resource("debug.keystore").extractTo(stagingDir))
     }
 
-    private val inlinerJar by lazy { Jar(Resource("appguard-inliner.jar").extractTo(resourceDir)) }
+    private val inlinerJar by lazy { Jar(Resource("appguard-inliner.jar").extractTo(stagingDir)) }
 
-    private val appGuardLoader by lazy { Dex(Resource("appguard-loader.dex").extractTo(resourceDir)) }
+    private val appGuardLoader by lazy { Dex(Resource("appguard-loader.dex").extractTo(stagingDir)) }
 
     private val monitorClassName: String = "org.droidmate.monitor.Monitor"
 
