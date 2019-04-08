@@ -36,8 +36,6 @@ import java.nio.file.Paths
 
 class Compiler {
     companion object {
-        private val defaultApiListPath by lazy { Resource("monitored_apis.json").path }
-
         @JvmStatic
         fun main(args: Array<String>) {
             if (args.isEmpty() || args.size > 2) {
@@ -52,10 +50,10 @@ class Compiler {
             val apiFile = if (args.size > 1) {
                 Paths.get(args[1])
             } else {
-                defaultApiListPath
+                null
             }
 
-            val dstFile = compile(apiFile, dstDir)
+            val dstFile = compile(dstDir, apiFile)
             println("Compiled apk moved to: $dstFile")
         }
 
@@ -105,8 +103,14 @@ class Compiler {
         @JvmStatic
         @JvmOverloads
         @Throws(IOException::class)
-        fun compile(dstDir: Path, apiFile: Path = defaultApiListPath): Path {
-            val methods = generateMethods(apiFile)
+        fun compile(dstDir: Path, apiFile: Path? = null): Path {
+            val methods = if (apiFile != null) {
+                generateMethods(apiFile)
+            } else {
+                Resource("monitored_apis.json").withExtractedPath {
+                    generateMethods(it)
+                }
+            }
             return compile(dstDir, methods)
         }
 
