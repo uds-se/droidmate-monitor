@@ -26,6 +26,7 @@
 package org.droidmate.monitor
 
 import org.droidmate.device.apis.ApiMethodSignature
+import org.droidmate.legacy.OS
 import org.droidmate.legacy.Resource
 import org.droidmate.legacy.deleteDirectoryRecursively
 import org.droidmate.legacy.replaceText
@@ -49,7 +50,7 @@ class MonitorProject constructor(
         @JvmStatic
         private val unpackedMonitorRepository by lazy {
             val tempDir = Files.createTempDirectory("monitorToCompile")
-            Resource("monitorApk").extractTo(tempDir, true).toAbsolutePath()
+            Resource("monitorApk/").extractTo(tempDir).toAbsolutePath()
         }
 
         @JvmStatic
@@ -133,15 +134,18 @@ class MonitorProject constructor(
      */
     private fun buildApk() {
         executor.executeWithoutTimeout(
-            "Building monitor apk", "$unpackedMonitorRepository/gradlew",
-            "clean", "build", "-p", "$unpackedMonitorRepository"
+            "Building monitor apk",
+            "$unpackedMonitorRepository/gradlew${if (OS.isWindows) ".bat" else "" }",
+            "clean",
+            "build",
+            "-p", "$unpackedMonitorRepository"
         )
     }
 
     /**
      * Build the redirection APK and copy it to the (destination directory)[dstDir]
      *
-     * @param Directory to copy the compiled APK to
+     * @param dstDir Directory to copy the compiled APK to
      * @return Path of the compiled APK within the [dstDir]
      */
     fun instrument(dstDir: Path): Path {
