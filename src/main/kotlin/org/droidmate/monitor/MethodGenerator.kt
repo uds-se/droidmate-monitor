@@ -38,7 +38,8 @@ import org.droidmate.misc.MonitorConstants
  *
  * A logcat similar to the following one will appear on it:
  * <pre>
- * 06-29 19:17:21.637 16375-16375/org.droidmate.fixtures.apks.monitored W/ArtHook: java.lang.RuntimeException: Can't find original method (redir_android_net_wifi_WifiManager_startScan1)
+ * 06-29 19:17:21.637 16375-16375/org.droidmate.fixtures.apks.monitored W/ArtHook: java.lang.RuntimeException:
+ * Can't find original method (redir_android_net_wifi_WifiManager_startScan1)
  * </pre>
  *
  * </p><p>
@@ -58,9 +59,9 @@ import org.droidmate.misc.MonitorConstants
  */
 private val nl = System.lineSeparator()
 
-private val ind4 = "    "
+private const val ind4 = "    "
 
-fun ApiMethodSignature.toRedirectCode(): String {
+internal fun ApiMethodSignature.toRedirectCode(): String {
     return if (this.objectClass.startsWith("android.test."))
         ""
     else {

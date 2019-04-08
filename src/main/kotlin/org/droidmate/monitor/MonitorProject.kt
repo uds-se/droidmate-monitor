@@ -40,7 +40,7 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardCopyOption
 
-class MonitorProject constructor(
+internal class MonitorProject constructor(
     private val methods: List<ApiMethodSignature>,
     private val executor: ISysCmdExecutor = SysCmdExecutor()
 ) : Closeable {
