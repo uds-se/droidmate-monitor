@@ -1,4 +1,8 @@
-# DroidMate-2 ![GNU GPL v3](https://www.gnu.org/graphics/gplv3-88x31.png)[![Build Status](https://travis-ci.org/natanieljr/droidmate-monitor.svg?branch=master)](https://travis-ci.org/natanieljr/droidmate-monitor)
+# DroidMate-2 ![GNU GPL v3](https://www.gnu.org/graphics/gplv3-88x31.png)
+[![Build Status](https://travis-ci.org/natanieljr/droidmate-monitor.svg?branch=master)](https://travis-ci.org/natanieljr/droidmate-monitor)
+[![](https://jitpack.io/v/natanieljr/droidmate-monitor.svg)](https://jitpack.io/#natanieljr/droidmate-monitor)
+                                                                                                                                                                                                                    
+
 
 DroidMate-2, an automated execution generator for Android apps.  
 Copyright (C) 2012-2018 Saarland University
