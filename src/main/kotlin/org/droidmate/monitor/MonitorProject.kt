@@ -30,6 +30,7 @@ import org.droidmate.legacy.Resource
 import org.droidmate.legacy.deleteDirectoryRecursively
 import org.droidmate.legacy.replaceText
 import org.droidmate.misc.EnvironmentConstants
+import org.droidmate.misc.EnvironmentConstants.Companion.monitor_apk_name
 import org.droidmate.misc.ISysCmdExecutor
 import org.droidmate.misc.SysCmdExecutor
 import org.slf4j.LoggerFactory
@@ -44,9 +45,6 @@ class MonitorProject constructor(
 ) : Closeable {
     companion object {
         private val log by lazy { LoggerFactory.getLogger(SysCmdExecutor::class.java) }
-
-        @JvmStatic
-        private val monitorApkFileName = "monitor.apk"
 
         @JvmStatic
         private val unpackedMonitorRepository by lazy {
@@ -123,7 +121,7 @@ class MonitorProject constructor(
         }
 
         Files.createDirectories(dstDir)
-        val dstFile = dstDir.resolve(monitorApkFileName)
+        val dstFile = dstDir.resolve(monitor_apk_name)
 
         Files.copy(compiledApk, dstFile, StandardCopyOption.REPLACE_EXISTING)
 

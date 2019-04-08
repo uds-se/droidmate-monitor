@@ -98,26 +98,27 @@ class Compiler {
         /**
          * Converts a JSON file into a list of APIs
          *
-         * @param apiFile File to be read. If none is chosen, use default API list
          * @param dstDir Directory where the compile APK will be stored
+         * @param apiFile File to be read. If none is chosen, use default API list
          * @throws IOException if the API file cannot be read
          */
         @JvmStatic
         @JvmOverloads
         @Throws(IOException::class)
-        fun compile(apiFile: Path = defaultApiListPath, dstDir: Path): Path {
+        fun compile(dstDir: Path, apiFile: Path = defaultApiListPath): Path {
             val methods = generateMethods(apiFile)
-            return compile(methods, dstDir)
+            return compile(dstDir, methods)
         }
 
         /**
          * Converts a JSON file into a list of APIs
          *
          * @param dstDir Directory where the compile APK will be stored
+         * @param methods List of APIs to inject into to monitor
          * @throws IOException if the API file cannot be read
          */
         @JvmStatic
-        fun compile(methods: List<ApiMethodSignature>, dstDir: Path): Path {
+        fun compile(dstDir: Path, methods: List<ApiMethodSignature>): Path {
             return MonitorProject(methods).use {
                 it.instrument(dstDir)
             }
