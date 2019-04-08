@@ -64,6 +64,8 @@ class ApkInliner @JvmOverloads constructor(
             Files.createDirectories(inputPath)
         if (!Files.isDirectory(inputPath))
             assert(Files.exists(inputPath))
+        if (!Files.exists(outputDir))
+            Files.createDirectories(outputDir)
         assert(Files.isDirectory(outputDir))
 
         if (Files.isDirectory(inputPath)) {
