@@ -1,6 +1,6 @@
 # DroidMate-2 ![GNU GPL v3](https://www.gnu.org/graphics/gplv3-88x31.png)
-[![Build Status](https://travis-ci.org/uds-se/droidmate-monitor.svg?branch=master)](https://travis-ci.org/natanieljr/droidmate-monitor)
-[![](https://jitpack.io/v/uds-se/droidmate-monitor.svg)](https://jitpack.io/#natanieljr/droidmate-monitor)
+[![Build Status](https://travis-ci.org/uds-se/droidmate-monitor.svg?branch=master)](https://travis-ci.org/uds-se/droidmate-monitor)
+[![](https://jitpack.io/v/uds-se/droidmate-monitor.svg)](https://jitpack.io/#uds-se/droidmate-monitor)
                                                                                                                                                                                                                     
 
 
