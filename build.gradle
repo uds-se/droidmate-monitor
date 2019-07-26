@@ -3,7 +3,7 @@ plugins {
 }
 
 group 'org.droidmate'
-version '1.3.2-RC0'
+version '1.4.1-SNAPSHOT'
 
 apply from: file("${rootProject.projectDir}/ktlint.gradle")
 
@@ -30,7 +30,7 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 
     //implementation group:'org.droidmate', name: 'common', version: "1.4-SNAPSHOT"
-    implementation 'com.github.uds-se:droidmate-common:1.3.2-RC0'
+    implementation 'com.github.uds-se:droidmate-common:1.4.1-SNAPSHOT'
     
     compile 'com.google.code.gson:gson:2.8.5'
 
